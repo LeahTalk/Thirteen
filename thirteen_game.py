@@ -9,7 +9,6 @@ class Thirteen_Game:
         player_name = input("What is your name, player?")
         print (f"Player, {player_name} has joined the game")
         self.deck.append(player_name)
-        # self.players.append(Player(player_name))
 
     #NEED TO TEST
     def find_first_player():
@@ -28,7 +27,3 @@ class Thirteen_Game:
     # def get_player_names():
 
     # def play_game():
-
-testclass = Thirteen_Game()
-print(testclass.players)
-testclass.add_player()
