@@ -10,10 +10,20 @@ class Thirteen_Game:
         print (f"Player, {player_name} has joined the game")
         self.deck.append(player_name)
         # self.players.append(Player(player_name))
-    
-    # def find_first_player():
-    
-    # def find_next_player():
+
+    #NEED TO TEST
+    def find_first_player():
+        for i in range(len(players)):
+            for card in players[i].hand:
+                if (card.value == 3) and (card.suit == 'spades')
+                    return i
+        return 0  
+
+    #NEED TO TEST
+    def find_next_player(current_player):
+        if current_player == 3:
+            return 0
+        return current_player + 1
 
     # def get_player_names():
 
