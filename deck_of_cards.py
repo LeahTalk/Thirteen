@@ -22,9 +22,12 @@ class Deck:
     
     def shuffle(self):
         for i in range(52):
-            random()
+            randomIndex = round(random.random() * (51 - i) + i)
+            self.deck[i], self.deck[randomIndex] = self.deck[randomIndex], self.deck[i]
 
-d1 = Deck()
-d1.build_deck()
-print(len(d1.deck))
+#d1 = Deck()
+#d1.build_deck()
+#d1.shuffle()
+#for card in d1.deck:
+    #print(str(card.value) + card.suit)
     
