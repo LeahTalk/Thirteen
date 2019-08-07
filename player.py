@@ -2,10 +2,11 @@ from deck_of_cards import Card
 
 class Player:
     def __init__(self, name):
-        self. name = name
+        self.name = name
         self.hand = []
 
     def display_hand(self):
+        print(f"{self.name}'s hand:")
         cards = {
         "1": "Ace",
         "2": 2,
