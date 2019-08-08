@@ -17,6 +17,7 @@ class Thirteen_Game:
             "free_for_all" : 1
         }
         self.turn_count = 0
+        self.winners = []
     
     def add_player(self, player_name = 'Default Player'):
         player_name = input("What is your name, player? ")
@@ -31,12 +32,12 @@ class Thirteen_Game:
         return 0  
 
     def find_next_player(self, current_player):
-        if current_player == 3:
+        if current_player == len(self.players) - 1:
             return 0
         return current_player + 1
 
 ##Change value and add dictionary for best values
-    def isGreaterThan(self, chosen_cards, last_cards_played):
+    def isGreaterThan(self, chosen_cards, last_cards_played, condition=''):
         card_values = {
             "3":0,
             "4":1,
@@ -52,7 +53,13 @@ class Thirteen_Game:
             "1":11,
             "2":12
         }
-        
+        #adding to check last value when we are checking for straits
+        if condition == 'straight':
+            if card_values[str(chosen_cards[0][len(chosen_cards[0])-1].value)] < card_values[str(last_cards_played[len(last_cards_played)-1].value)]:
+                return False
+            else:
+                return True
+        #end of addittion
         for x in range(0, len(chosen_cards[0]), 1):
             if card_values[str(chosen_cards[0][x].value)] < card_values[str(last_cards_played[x].value)]:
                 return False
@@ -65,7 +72,32 @@ class Thirteen_Game:
                 return False
             cur_card_value = chosen_cards[0][x].value
         return True
-    
+
+    def is_strait_correct(self, chosen_cards):
+        card_values = {
+            "3":0,
+            "4":1,
+            "5":2,
+            "6":3,
+            "7":4,
+            "8":5,
+            "9":6,
+            "10":7,
+            "11":8,
+            "12":9,
+            "13":10,
+            "1":11,
+            "2":12
+        }
+        print("Wow! A straight has been played!")
+        hold_length = len(chosen_cards[0])
+        for x in range(0,hold_length-1,1):
+            if card_values[str(chosen_cards[0][x].value)] + 1 != card_values[str(chosen_cards[0][x+1].value)]:
+                print("Is not correct straight")
+                return False
+        return True
+
+        
     def checkSingle(self, chosen_cards, last_cards_played):
         if len(last_cards_played) == 0:
             if len(chosen_cards[0]) == 1:
@@ -103,10 +135,14 @@ class Thirteen_Game:
         return False
 
     def checkStraight(self, chosen_cards, last_cards_played):
-        if len(chosen_cards) == len(last_played):
-            return True
-        else:
+        condition = 'straight'
+        if len(last_cards_played) == 0:
+            if (len(chosen_cards[0]) >= 3) and self.is_strait_correct(chosen_cards):
+                return True
             return False
+        if (len(chosen_cards[0]) == len(last_cards_played)) and self.is_strait_correct(chosen_cards) and self.isGreaterThan(chosen_cards, last_cards_played, condition):
+            return True
+        return False
 
     def deal(self):
         card_index = 0
@@ -120,7 +156,9 @@ class Thirteen_Game:
             
     #Need to remove -1 whatever is in chosen cards
     def removeChosenCards(self, cur_player, chosen_cards):
+        chosen_cards = list(map(int, chosen_cards))
         chosen_cards.sort(reverse=True)
+        print(f"The player has removed these cards {chosen_cards}")
         for char in chosen_cards:
             self.players[cur_player].hand.pop(int(char) - 1)
     
@@ -218,16 +256,47 @@ class Thirteen_Game:
     def checkValidity(self, chosen_cards, last_cards_played):
         return self.conditions[self.cur_condition](chosen_cards, last_cards_played)
 
-    def displayWinner(self):
-        for player in self.players:
-            if(len(player.hand) == 0):
-                print(player.name + " won!")
+    def displayWinners(self):
+        winPhrase = {
+            "0": "1st",
+            "1": "2nd",
+            "2": "3rd",
+            "3": "4th"
+        }
+        print("Final Rankings:")
+        for i in range(len(self.winners)):
+            print(f"{winPhrase[str(i)]} place: {self.winners[i].name}")
 
     def checkWinner(self):
         for player in self.players:
             if(len(player.hand) == 0):
+                print(f"{player.name} is out of cards!")
+                print("")
                 return True
         return False
+
+    def removeWinner(self):
+        for i in range(len(self.players)):
+            if len(self.players[i].hand) == 0:
+               self.winners.append(self.players.pop(i))
+               break
+
+    #Function for testing purposes
+    def test_deal(self):
+        for player in self.players:
+            player.hand.append(Card("spades",1))
+            player.hand.append(Card("spades",2))
+            player.hand.append(Card("spades",3))
+            player.hand.append(Card("spades",4))
+            player.hand.append(Card("spades",5))
+            player.hand.append(Card("spades",6))
+            player.hand.append(Card("spades",7))
+            player.hand.append(Card("spades",8))
+            player.hand.append(Card("spades",9))
+            player.hand.append(Card("spades",10))
+            player.hand.append(Card("spades",11))
+            player.hand.append(Card("spades",12))
+            player.hand.append(Card("spades",13))
 
     def play_game(self):
 
@@ -241,21 +310,30 @@ class Thirteen_Game:
             "diamonds" : 2,
             "hearts" : 3
         }
+        
         #initial variables
         last_cards_played = []
         cur_player = 0
         for i in range(4):
             self.add_player()
         self.deal()
+        #use below function when testing 
+        #self.test_deal() 
         cur_player = self.find_first_player()
-        while(not self.checkWinner()):
-            if self.skip_count == 3:
+        while len(self.players) > 1:
+            if self.skip_count == len(self.players) - 1:
                 self.cur_condition = "free_for_all"
                 self.skip_count = 0
                 last_cards_played = []
             last_cards_played = self.playerTurn(cur_player, last_cards_played)
-            cur_player = self.find_next_player(cur_player)
-        self.displayWinner()
+            if self.checkWinner():
+                if cur_player == len(self.players) - 1:
+                  cur_player = 0
+                self.removeWinner()      
+            else:
+                cur_player = self.find_next_player(cur_player)
+        self.winners.append(self.players.pop(0))
+        self.displayWinners()
             
 testclass = Thirteen_Game()
 testclass.play_game()
