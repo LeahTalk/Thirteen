@@ -12,7 +12,7 @@ class Thirteen_Game:
             "single" : self.checkSingle,
             "double" : self.checkDouble,
             "triple" : self.checkTriple,
-            "quad" : self.checkQuad,
+            "four" : self.checkQuad,
             "straight" : self.checkStraight,
             "free_for_all" : 1
         }
@@ -53,17 +53,40 @@ class Thirteen_Game:
             "1":11,
             "2":12
         }
+        ###
+        #NOTE: If user does not enter straight in chronological order (e.g. 4,8,5,3,7,6) this will break the program.
+        #      Consider sorting the arrays somewhere, possibly before we enter this function? Same with check_straight
+        ###
         #adding to check last value when we are checking for straits
         if condition == 'straight':
             if card_values[str(chosen_cards[0][len(chosen_cards[0])-1].value)] < card_values[str(last_cards_played[len(last_cards_played)-1].value)]:
                 return False
-            else:
+            elif card_values[str(chosen_cards[0][len(chosen_cards[0])-1].value)] == card_values[str(last_cards_played[len(last_cards_played)-1].value)]:
+                return self.compareSuit([chosen_cards[0][len(chosen_cards[0])-1]], [last_cards_played[len(last_cards_played)-1]])
+            else 
                 return True
-        #end of addittion
-        for x in range(0, len(chosen_cards[0]), 1):
-            if card_values[str(chosen_cards[0][x].value)] < card_values[str(last_cards_played[x].value)]:
-                return False
+        #end of addittion:
+        if card_values[str(chosen_cards[0][0].value)] < card_values[str(last_cards_played[0].value)]:
+            return False
+        if card_values[str(chosen_cards[0][0].value)] == card_values[str(last_cards_played[0].value)]:
+            return self.compareSuit(chosen_cards[0], last_cards_played)
         return True
+
+    def compareSuit(self, chosen_cards, last_cards_played):
+        suit_values = {
+            "spades" : 0,
+            "clubs" : 1,
+            "diamonds" : 2,
+            "hearts" : 3
+        }
+        chosen_cards_suits = []
+        last_cards_played_suits = []
+        for card in chosen_cards:
+            chosen_cards_suits.append(suit_values[card.suit])
+        for card in last_cards_played:
+            last_cards_played_suits.append(suit_values[card.suit])
+        return max(chosen_cards_suits) > max(last_cards_played_suits)
+        
 
     def check_equality(self, chosen_cards):
         cur_card_value = chosen_cards[0][0].value
@@ -304,13 +327,6 @@ class Thirteen_Game:
         self.deck.shuffle()
         #different patterns user can play
         #suit hierarchy 
-        suit_values = {
-            "spades" : 0,
-            "clubs" : 1,
-            "diamonds" : 2,
-            "hearts" : 3
-        }
-        
         #initial variables
         last_cards_played = []
         cur_player = 0
