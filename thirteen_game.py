@@ -63,7 +63,7 @@ class Thirteen_Game:
                 return False
             elif card_values[str(chosen_cards[0][len(chosen_cards[0])-1].value)] == card_values[str(last_cards_played[len(last_cards_played)-1].value)]:
                 return self.compareSuit([chosen_cards[0][len(chosen_cards[0])-1]], [last_cards_played[len(last_cards_played)-1]])
-            else 
+            else:
                 return True
         #end of addittion:
         if card_values[str(chosen_cards[0][0].value)] < card_values[str(last_cards_played[0].value)]:
@@ -120,6 +120,45 @@ class Thirteen_Game:
                 return False
         return True
 
+    def check_three_consecutive_pairs(self, chosen_cards):
+        card_values = {
+            "3":0,
+            "4":1,
+            "5":2,
+            "6":3,
+            "7":4,
+            "8":5,
+            "9":6,
+            "10":7,
+            "11":8,
+            "12":9,
+            "13":10,
+            "1":11,
+            "2":12
+        }
+        hold_length = len(chosen_cards)
+        if hold_length != 6:
+            return False
+        #Make sure that we have three pairs
+        for x in range(0,hold_length-1,2):
+            if card_values[str(chosen_cards[x].value)] != card_values[str(chosen_cards[x+1].value)]:
+                return False
+        #Make sure that the pairs are consecutive
+        if ((card_values[str(chosen_cards[0].value)] + 1) != (card_values[str(chosen_cards[2].value)]) or
+            (card_values[str(chosen_cards[2].value)] + 1) != (card_values[str(chosen_cards[4].value)])):
+                return False
+        return True
+
+    def checkBomb(self, chosen_cards, last_cards_played):
+        #Return false if user tries to play bomb on a card other than 2
+        if last_cards_played[0].value != 2:
+            return False
+        #Check if bomb is four of a king
+        if (len(chosen_cards[0]) == 4) and (self.checkEquality(chosen_cards)):
+            return True
+        if self.check_three_consecutive_pairs(chosen_cards[0]):
+            return True
+        return False
         
     def checkSingle(self, chosen_cards, last_cards_played):
         if len(last_cards_played) == 0:
@@ -128,6 +167,8 @@ class Thirteen_Game:
             return False
         if len(chosen_cards[0]) == 1 and self.isGreaterThan(chosen_cards, last_cards_played):
             return True
+        if len(chosen_cards[0]) > 1:
+            return self.checkBomb(chosen_cards, last_cards_played)
         return False
 
     def checkDouble(self, chosen_cards, last_cards_played):
